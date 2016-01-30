@@ -57,7 +57,7 @@ namespace Cards.Collections
 			Cards = new List<Card>();
 			for(int i = 1;i<5;i++)//for each suit...
 			{
-				for(int j = 2;j<15;j++)//creates a card with this suit and this value
+				for(int j = 1;j<14;j++)//creates a card with this suit and this value
 				{
 					Card c = new Card();
 					c.cardValue=(cardValue)j;
@@ -94,25 +94,7 @@ namespace Cards.Collections
 
 
 
-		/*
-		public void Reset()
-		{
-			Cards = Enumerable.Range(1, 4).SelectMany(
-				suit => Enumerable.Range(1, 13).Select(
-				cardValue => new Card() { Suit = (Suit)suit, cardValue = (cardValue)cardValue })).ToList();
-		}
-		
-		/// <summary>
-		///  Embaralha ordem das cartas do deck
-		/// </summary>  
-		public void DeckShuffle()
-		{
-			Cards = Cards.OrderBy(cardValue => Guid.NewGuid()).ToList();
-		}*/
-		
-		/// <summary>
-		///  Remove a proxima carta do DECK e retorna esta Carta
-		/// </summary>  
+ 
 		public Card TakeCard()
 		{
 			if (Cards.Count > 0)

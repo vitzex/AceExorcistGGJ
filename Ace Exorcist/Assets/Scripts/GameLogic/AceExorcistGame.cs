@@ -1,5 +1,5 @@
 ﻿using System;
-
+/*
 public class AceExorcistGame
 {
 	public AceExorcistGame()
@@ -103,3 +103,4 @@ public class AceExorcistGame
         //Check victory conditions
     }
 }
+*/
