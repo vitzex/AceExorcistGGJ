@@ -212,8 +212,30 @@ public class AceExorcistGame
             return false;
 
         //Validation
+        //First, check if there are exactly two or three cards.
+        if (DrawWithCards.Count != 2 && DrawWithCards.Count != 3)
+            //message to player - must play exactly two or three cards (of equal value)
+            return false;
 
-        //Draw cards
+        //If so, check that they are of equal value (a pair or triad)
+        for (int i=0; i<2; i++)
+        {
+            if (DrawWithCards[i].cardValue != DrawWithCards[i + 1].cardValue)
+                //message to player - cards played must be of equal value
+                return false;
+        }
+
+        //Discard the cards played and draw new cards
+        foreach (Card theCard in DrawWithCards)
+        {
+            theCard.TakeCard();
+            // draw a new card from ExorcistLibrary and add it to ExorcistHand
+        }
+        //and draw one more card from ExorcistLibrary and add to ExorcistHand
+
+        //Finally return true
+        return true;
+
     }
 
     public bool DoMitigate(List<Cards> MitigateWithCards)
