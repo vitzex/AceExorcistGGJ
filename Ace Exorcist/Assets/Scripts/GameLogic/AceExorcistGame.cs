@@ -73,8 +73,8 @@ public class AceExorcistGame
                     SummonerHP = SummonerHP - (int)SummonerLibraryCard.cardValue; //change HP
                     AttackValue = AttackValue - (int)SummonerLibraryCard.cardValue; //remaining attackvalue
                     SummonerLibraryCard.takeCard(); // (Takes it and removes it)
-                    // SummonerLibraryCard.Discard;   //REMEMBER TO ADD TO DISCARD PILE
-                    // Exorcist must draw one card
+                    // SummonerLibraryCard.Discard;    //REMEMBER TO ADD TO DISCARD PILE
+                    // Exorcist must draw one card!!!!!!!!
                 }
                 else
                 {
@@ -147,6 +147,41 @@ public class AceExorcistGame
     {
         if (IsExorcistTurn)
             return false;
+
+        AttackWithCards.Sort();
+        //ORDER CARDSPLAYED - DONE
+
+        for (int counter = 0; counter < AttackWithCards.Count; counter++)  //CHECK IF CONSECUTIVE RUN
+        {
+            if (counter < AttackWithCards.Count - 1)
+              if (AttackWithCards[counter + 1].cardValue - AttackWithCards[counter].cardValue != 1)
+                    return false; //if it's not a consecutive run => break method
+        }
+
+        // ADD MITIGATE
+        // If exorcist has (AttackWithCards[0].cardValue - 1) 
+        // or (AttackWithCards[AttackWithCards.Count-1].cardValue + 1)
+        // prompt exorcist whether he would like to mitigate
+
+        //FIX MITIGATE
+
+        bool MitigationPossible = false;
+        List<Card> MitigateWithCards;
+
+        foreach (Card theCard in ExorcistHand)
+            if ((theCard.cardValue == AttackWithCards[0].cardValue - 1) || (theCard.cardValue == AttackWithCards[AttackWithCards.Count - 1].cardValue + 1))
+            {
+                MitigateWithCards.Add(theCard);
+                MitigationPossible = true;
+            }
+
+        bool Mitigation = false;
+
+        if (MitigationPossible)
+        {
+            // prompt exorcist whether he would like to mitigate
+            if Mitigation DoMitigate(MitigateWithCards);
+        }
         //Validation
     }
 
