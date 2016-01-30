@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Cards.Collections;
 
 public class AceExorcistGame
 {
@@ -38,7 +40,7 @@ public class AceExorcistGame
         }
     }
 
-    public bool DoExorcistAttack(Card AttackedCardInSummon, List<Card> AttackWithCards)
+    public bool DoExorcistAttack(List<Card> AttackWithCards)
     {
 
         int AttackValue = 0;
@@ -49,9 +51,9 @@ public class AceExorcistGame
             int ExorcistAttack = 1; //defaulted
                                     // int ExorcistHeal = 1; //defaulted
 
-        foreach (Card theCard in CardsPlayed)
-        {            AttackValue = AttackValue + theCard.CardValue;  
-            if (theCard.cardValue.Suit != CardsPlayed[0].Suit) //exorcist flush = attack
+        foreach (Card theCard in AttackWithCards) // correct enumeration error for AttackWithCards?
+        {            AttackValue = AttackValue + (int)theCard.cardValue;  
+            if (theCard.Suit != AttackWithCards[0].Suit) //exorcist flush = attack
                 ExorcistAttack = ExorcistAttack * 0; //no flush no attack
         }
 
@@ -66,12 +68,13 @@ public class AceExorcistGame
 
             while (AttackValue > 0)
             {
-                if (SummonerLibraryCard.CardValue <= AttackValue)
+                if ((int)SummonerLibraryCard.cardValue <= AttackValue)
                 {
-                    SummonerHP = SummonerHP - SummonerLibraryCard.CardValue; //change HP
-                    AttackValue = AttackValue - SummonerLibraryCard.CardValue; //remaining attackvalue
-                    SummonerLibraryCard.TakeCard(); // (Takes it and removes it)
-                                                  // SummonerLibraryCard.Discard;   //REMEMBER TO ADD TO DISCARD PILE
+                    SummonerHP = SummonerHP - (int)SummonerLibraryCard.cardValue; //change HP
+                    AttackValue = AttackValue - (int)SummonerLibraryCard.cardValue; //remaining attackvalue
+                    SummonerLibraryCard.takeCard(); // (Takes it and removes it)
+                    // SummonerLibraryCard.Discard;   //REMEMBER TO ADD TO DISCARD PILE
+                    // Exorcist must draw one card
                 }
                 else
                 {
@@ -90,18 +93,16 @@ public class AceExorcistGame
             if (SummonZone[i].CardValue <= AttackValue)
             {
                 SummonerHP = SummonerHP - SummonZone[i].CardValue; //change HP
-                SummonZone[i].TakeCard(); // (Takes it and removes it) 
-                                        //CHECK IF TAKECARD IS A FUNCTION FOR ANY LIST (as opposed to just decks)
-                                        // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+                SummonZone[i].TakeCard(); // (Takes it and removes it)                                         // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
             }
-            else return false; //attack too small means no attack
             // DebugLog("Not enough attack value to destroy that Summoned Card");
+            else return false; //attack too small means no attack
         }
 
-        foreach (Card theCard in CardsPlayed)
+        //finally, take the cards played from the Exorcist's hand, and discard them
+        foreach (Card theCard in AttackWithCards)
            theCard.TakeCard(); // (Takes it and removes it) 
-                               //CHECK IF TAKECARD IS A FUNCTION FOR ANY LIST (as opposed to just decks)
-                               // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+           // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
 
@@ -111,9 +112,35 @@ public class AceExorcistGame
 
     public bool DoExorcistHeal(List<Card> HealWithCards)
     {
-        if (!IsExorcistTurn)
+        if (!IsExorcistTurn) //Healing only for Exorcist
             return false;
-        //Validation similar to above
+
+        //First, check if there are exactly two cards.
+        if (HealWithCards.Count != 2)
+            //message to player - must play exactly two cards (of equal value)
+            return false;
+
+        //If so, check that they are of equal value (a pair)
+        if (HealWithCards[0].cardValue != HealWithCards[1].cardValue)
+            //message to player - not a pair
+            return false;
+
+        //If so, add the value of each card in turn to the Exorcist's HP
+        foreach (Card theCard in HealWithCards)
+        {
+            ExorcistHP = ExorcistHP + (int)theCard.cardValue;
+        }
+
+        //finally, take the cards played from the Exorcist's hand, and discard them
+        foreach (Card theCard in HealWithCards)
+            theCard.TakeCard(); // (Takes it and removes it) 
+                                // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+
+        //Do changes to game state (hit points - done, remove cards from hand - done, etc)
+
+        return true;
+        //return true if success; false if failed or illegal move (done)
+
     }
 
     public bool DoSummonerAttack(List<Card> AttackWithCards)
@@ -125,12 +152,22 @@ public class AceExorcistGame
 
     public bool DoSummonerPlaySummon(Card SummonCard)
     {
-        if (IsExorcistTurn)
+        if (IsExorcistTurn) //Only for Summoner
             return false;
 
-        //Validation
+        //Check that it's a Face card, allowed in Summon Zone
+        if ((int)SummonCard.cardValue > 1 && (int)SummonCard.cardValue < 8)
+            //message to player - not a Face Card so can't be part of Summons
+            return false;
 
-        //Add to summonzone
+        //If it is, remove it from the Summoner's hand and add it to Summon Zone
+        SummonCard.TakeCard(); // (Takes it and removes it) 
+
+        //Do changes to game state (hit points - done, remove cards from hand - done, etc)
+
+        return true;
+        //return true if success; false if failed or illegal move (done)
+
     }
 
     public bool DoSummonerDrawCards(List<Card> DrawWithCards)
