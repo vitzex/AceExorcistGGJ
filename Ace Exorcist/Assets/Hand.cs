@@ -15,7 +15,7 @@ public class Hand : MonoBehaviour {
 	public float summonerX;//same thing for summoner
 	public float exorcistY;//saves the height the exorcist's hand will be displayed
 	public float summonerY;//same thing for summoner
-
+	RaycastHit2D hit;
 
 	float cardWidth = 2.3f;//hard coded value for now
 
@@ -86,5 +86,8 @@ public class Hand : MonoBehaviour {
 		exorcistY = GameObject.Find("Player_Hand").transform.position.y;
 
 	}
+
+
+
 
 }
