@@ -53,8 +53,8 @@ public class  DeckScript : MonoBehaviour {
 			Card cardDrawn = deck.TakeCard();
 			//creates the card in the game world
 			GameObject card = Instantiate(Resources.Load("CardModel"),new Vector3(3,3), Quaternion.identity) as GameObject;
-			card.GetComponent<CardModel>().cardValue = (int)cardDrawn.cardValue;
-			card.GetComponent<CardModel>().cardSuit = (int)cardDrawn.Suit;
+			card.GetComponent<CardModel>().cardValue = cardDrawn.cardValue;
+			card.GetComponent<CardModel>().cardSuit = cardDrawn.Suit;
 			Sprite cardSprite = Resources.Load<Sprite>("Sprites/aceSpades");
 
 			enemyH.addCard(cardDrawn);
@@ -85,8 +85,8 @@ public class  DeckScript : MonoBehaviour {
 			
 			//creates the card in the game world
 			GameObject card = Instantiate(Resources.Load("CardModel"), new Vector3(-3,-2),Quaternion.identity) as GameObject;
-			card.GetComponent<CardModel>().cardValue = (int)cardDrawn.cardValue;
-			card.GetComponent<CardModel>().cardSuit = (int)cardDrawn.Suit;
+			card.GetComponent<CardModel>().cardValue = cardDrawn.cardValue;
+			card.GetComponent<CardModel>().cardSuit = cardDrawn.Suit;
 
 			Sprite cardSprite = Resources.Load<Sprite>("Sprites/aceSpades");
 			

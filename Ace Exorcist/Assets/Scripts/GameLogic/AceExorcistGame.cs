@@ -31,24 +31,24 @@ public class AceExorcistGame
 
 	}
 
-    private Deck ExorcistLibrary;
-    private Deck SummonerLibrary;
+    public static Deck ExorcistLibrary;
+    public static Deck SummonerLibrary;
     //public Discard ExorcistDiscard;
     //public Discard SummonerDiscard;
-    public Card SummonerLibraryCard;
-    private Hand ExorcistHand;
-    private Hand SummonerHand;
-    private List<Card> CardsPlayed; //is this needed?
+    public static Card SummonerLibraryCard;
+    public static Hand ExorcistHand;
+    public static Hand SummonerHand;
+    public static List<Card> CardsPlayed; //is this needed?
 
-    public int ExorcistHP = 30;
-    public int SummonerHP = 60;
+    public static int ExorcistHP = 30;
+    public static int SummonerHP = 60;
 
-    public int MaxHandSize = 6;
+    public static int MaxHandSize = 6;
 
-    public Hand SummonZone;
+    public static Hand SummonZone;
 
-    public bool IsExorcistTurn = false;
-    public bool IsExorcist = true;
+    public static bool IsExorcistTurn = false;
+    public static bool IsExorcist = true;
 
     public Hand GetCardsInHand() //is this handled in Hand?
     {
@@ -83,6 +83,29 @@ public class AceExorcistGame
 
         else return; //break method if index out of bounds
     }
+
+    public void ToggleMitigate(int index, ref List<Card> MitigateWithCards, ref List<Card> MitigatingWith)
+    {
+
+        if ((index > 0) && (index <= MitigateWithCards.Count ))  //if index out of bounds for the hand size
+        {
+            foreach (Card theCard in MitigatingWith)
+            {
+                if (theCard.cardValue == MitigateWithCards[index - 1].cardValue)
+                { if (theCard.Suit == MitigateWithCards[index - 1].Suit)
+                        MitigatingWith.Remove(theCard);
+                    //remove index card if exactly same card already played, otherwise
+
+                    return; //break method in any case when same value card played
+                }
+            }
+
+            MitigatingWith.Add(MitigateWithCards[index - 1]); //add index card to CardsPlayed, if everything safe
+        }
+
+        else return; //break method if index out of bounds
+    }
+
 
     public bool DoExorcistAttack(List<Card> AttackWithCards)
     {
@@ -197,11 +220,15 @@ public class AceExorcistGame
         if (IsExorcistTurn)
             return false;
 
+        int AttackValue = 0;
+
         AttackWithCards.Sort();
         //ORDER CARDSPLAYED - DONE
 
         for (int counter = 0; counter < AttackWithCards.Count; counter++)  //CHECK IF CONSECUTIVE RUN
         {
+            AttackValue = AttackValue + (int)AttackWithCards[counter].cardValue;
+
             if (counter < AttackWithCards.Count - 1)
               if (AttackWithCards[counter + 1].cardValue - AttackWithCards[counter].cardValue != 1)
                     return false; //if it's not a consecutive run => break method
@@ -214,26 +241,21 @@ public class AceExorcistGame
 
         //FIX MITIGATE
 
-        bool MitigationPossible = false;
         List<Card> MitigateWithCards=null;
 
         foreach (Card theCard in ExorcistHand.hand)
             if ((theCard.cardValue == AttackWithCards[0].cardValue - 1) || (theCard.cardValue == AttackWithCards[AttackWithCards.Count - 1].cardValue + 1))
             {
                 MitigateWithCards.Add(theCard);
-                MitigationPossible = true;
             }
-        
-        bool Mitigation = false;
 
-        if (MitigationPossible)
-        {
-            // prompt exorcist whether he would like to mitigate
-            if (Mitigation) DoMitigate(MitigateWithCards);
-        }
+
+        if (MitigateWithCards.Count != 0)
+            DoMitigate(ref AttackValue, MitigateWithCards);
+
+        ExorcistHP = ExorcistHP - AttackValue; // adjusted via (potentially mitigated) attack
 
         return true;
-
         //Validation
     }
 
@@ -289,15 +311,28 @@ public class AceExorcistGame
 
     }
 
-    public bool DoMitigate(List<Card> MitigateWithCards)
+    public bool DoMitigate(ref int AttackValue, List<Card> MitigateWithCards)
     {
         if (SummonZone != null)
             return false; //cannot mitigate when there's an attack on summons
 
         else
         {
-            //choose one or two of these cards to mitigate
-            //
+            List<Card> MitigatingWith = null;
+            //select which cards to actually mitigate with (out of MitigateWithCards) - DONE in ToggleMitigate
+
+            // ToggleMitigate(input, MitigateWithCards, MitigatingWith)
+            // for this version of ToggleCard we need to make sure no two cards have the same cardValue -DONE
+
+            int sum = 0;
+
+            foreach (Card theCard in MitigatingWith)
+            {
+                ExorcistHand.removeCard(theCard); //removing from exorcist hand
+                sum = sum + (int)theCard.cardValue; //total mitigation
+            }
+                AttackValue = AttackValue - sum; //adjusted attack value
+
             return true;
         }
 
