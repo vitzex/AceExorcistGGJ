@@ -9,27 +9,26 @@ namespace Cards.Collections
 	//order 52 cards based on suit and value; to be changed to SUIT our needs(get it?) later
 	public enum Suit
 	{
-		Clubs = 1,   
-		Diamonds = 2,   
-		Hearts = 3,  
-		Spades = 4, 
+		Bells = 1,   
+		Books = 2,   
+		Candles = 3,  
+		Blood = 4,
+        Blades = 5,
+        Flames = 6,
 	}
 
 	public enum cardValue
 	{
-		Ace = 1,
+		Face1 = 1,
 		Two = 2,
 		Three = 3,
 		Four = 4,
 		Five = 5,
 		Six = 6,
 		Seven = 7,
-		Eight = 8,
-		Nine = 9,
-		Ten = 10,
-		Jack = 11,
-		Queen = 12,
-		King = 13,
+		Face8 = 8,
+		Face9 = 9,
+		Face10 = 10,
 
 	}
 	
@@ -46,18 +45,24 @@ namespace Cards.Collections
 	{
 		public List<Card> Cards { get; set; } //each card has a suit and value
 		
-		public Deck()
+		public Deck(bool isExorcist)
 		{
-			CreateDeck();
+			CreateDeck(isExorcist);
 		}
 
 		//creates the deck
-		public void CreateDeck()
+		public void CreateDeck(bool isExorcist)
 		{
-			Cards = new List<Card>();
-			for(int i = 1;i<5;i++)//for each suit...
+            //if isExorcist, build deck with suits 1-3; if Summoner, use suits 4-6
+            int useSuits = 1;
+            if (!isExorcist)
+                useSuits = 3;
+
+
+            Cards = new List<Card>();
+			for(int i = useSuits; i<useSuits+3; i++)//for each suit...
 			{
-				for(int j = 1;j<14;j++)//creates a card with this suit and this value
+				for(int j = 1; j<11; j++)//creates a card with this suit and this value
 				{
 					Card c = new Card();
 					c.cardValue=(cardValue)j;
@@ -99,8 +104,8 @@ namespace Cards.Collections
 		{
 			if (Cards.Count > 0)
 			{
-				Card card = Cards.FirstOrDefault(); //Pega o primeiro da sequencia no Deck
-				Cards.Remove(card); //Removemos esta carta do Deck
+				Card card = Cards.FirstOrDefault(); //Take the first card in the Deck
+				Cards.Remove(card); //Remove that card from the Deck
 				return card;
 			}
 			else
