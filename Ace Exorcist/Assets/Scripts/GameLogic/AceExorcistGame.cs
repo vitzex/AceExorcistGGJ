@@ -10,13 +10,13 @@ public class AceExorcistGame
         
 	}
 
-    private ExorcistLibrary ExorcistLibrary;
-    private SummonerLibrary SummonerLibrary;
-    public ExorcistDiscard ExorcistDiscard;
-    public SummonerDiscard SummonerDiscard;
+    private List<Card> ExorcistLibrary;
+    private List<Card> SummonerLibrary;
+    public Discard ExorcistDiscard;
+    public Discard SummonerDiscard;
     public Card SummonerLibraryCard;
-    private PlayerHand ExorcistHand;
-    private PlayerHand SummonerHand;
+    private Hand ExorcistHand;
+    private Hand SummonerHand;
     private List<Card> CardsPlayed;
 
     public int ExorcistHP = 30;
@@ -24,11 +24,11 @@ public class AceExorcistGame
 
     public int MaxHandSize = 6;
 
-    public SummonZone SummonZone;
+    public List<Card> SummonZone;
 
     public bool IsExorcistTurn = false;
 
-    public PlayerHand GetCardsInHand()
+    public Hand GetCardsInHand()
     {
         //Check if player is Exorcist
         if (IsExorcistTurn)
@@ -73,8 +73,8 @@ public class AceExorcistGame
                 {
                     SummonerHP = SummonerHP - (int)SummonerLibraryCard.cardValue; //change HP
                     AttackValue = AttackValue - (int)SummonerLibraryCard.cardValue; //remaining attackvalue
-                    SummonerLibraryCard.takeCard(); // (Takes it and removes it)
-                    // SummonerLibraryCard.Discard;    //REMEMBER TO ADD TO DISCARD PILE
+                    SummonerDiscard.Add(SummonerLibraryCard); // (Takes it and removes it)
+                    SummonerLibrary.Remove(SummonerLibraryCard);    //REMEMBER TO ADD TO DISCARD PILE
                     // Exorcist must draw one card!!!!!!!!
                 }
                 else
@@ -94,7 +94,7 @@ public class AceExorcistGame
             if (SummonZone[i].CardValue <= AttackValue)
             {
                 SummonerHP = SummonerHP - SummonZone[i].CardValue; //change HP
-                SummonZone[i].TakeCard(); // (Takes it and removes it)                                         // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+                SummonZone.Remove(SummonZone[i]); // (Takes it and removes it)                                         // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
             }
             // DebugLog("Not enough attack value to destroy that Summoned Card");
             else return false; //attack too small means no attack
@@ -102,7 +102,7 @@ public class AceExorcistGame
 
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in AttackWithCards)
-           theCard.TakeCard(); // (Takes it and removes it) 
+           ExorcistDiscard.Add(AttackWithCards.TakeCard(theCard)); // (Takes it and removes it) 
            // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
@@ -134,8 +134,9 @@ public class AceExorcistGame
 
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in HealWithCards)
-            theCard.TakeCard(); // (Takes it and removes it) 
-                                // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+             // (Takes it and removes it) 
+        ExorcistDiscard.Add(HealWithCards.TakeCard(theCard))
+               // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
 
@@ -167,9 +168,9 @@ public class AceExorcistGame
         //FIX MITIGATE
 
         bool MitigationPossible = false;
-        List<Card> MitigateWithCards;
+        List<Card> MitigateWithCards=null;
 
-        foreach (Card theCard in ExorcistHand)
+        foreach (Card theCard in ExorcistHand.CardsInHand)
             if ((theCard.cardValue == AttackWithCards[0].cardValue - 1) || (theCard.cardValue == AttackWithCards[AttackWithCards.Count - 1].cardValue + 1))
             {
                 MitigateWithCards.Add(theCard);
@@ -181,7 +182,7 @@ public class AceExorcistGame
         if (MitigationPossible)
         {
             // prompt exorcist whether he would like to mitigate
-            if Mitigation DoMitigate(MitigateWithCards);
+            if (Mitigation) DoMitigate(MitigateWithCards);
         }
         //Validation
     }
@@ -228,20 +229,26 @@ public class AceExorcistGame
         //Discard the cards played and draw new cards
         foreach (Card theCard in DrawWithCards)
         {
-            theCard.TakeCard();
+            DrawWithCards.Remove(theCard); //remove the card used to draw
+            ExorcistHand.addCard(ExorcistLibrary.TakeCard());
             // draw a new card from ExorcistLibrary and add it to ExorcistHand
         }
-        //and draw one more card from ExorcistLibrary and add to ExorcistHand
 
         //Finally return true
         return true;
 
     }
 
-    public bool DoMitigate(List<Cards> MitigateWithCards)
+    public bool DoMitigate(List<Card> MitigateWithCards)
     {
-        if (SummonZone = null)
+        if (SummonZone != null)
             return false; //cannot mitigate when there's an attack on summons
+
+        else
+        {
+            //choose one or two of these cards to mitigate
+            //
+        }
 
         //Validation
 
