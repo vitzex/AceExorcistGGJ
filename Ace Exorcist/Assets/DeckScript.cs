@@ -19,10 +19,10 @@ public class  DeckScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		//for now, has the same amount as a normal deck?
-		cardAmount = 52;
+		cardAmount = 30;
 		cardsRemaining=cardAmount;
-		maxHandValue = 6;
-		deck = new Deck();
+		maxHandValue = 6;       //this is also specified in AceExorcistGames.cs???
+		//deck = new Deck(); - moved this into AceExorcistGames.cs
 
 		//create references to the player's Hand component and the enemy's
 		playerH = GameObject.Find("Player_Hand").GetComponent<Hand>();
