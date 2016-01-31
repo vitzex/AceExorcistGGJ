@@ -181,7 +181,8 @@ public class AceExorcistGame
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in HealWithCards)
             // (Takes it and removes it) 
-            ExorcistDiscard.Add(HealWithCards.TakeCard(theCard));
+            ExorcistHand.hand.Remove(theCard);
+            //ExorcistDiscard.Add(HealWithCards.TakeCard(theCard));
                // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
@@ -222,7 +223,7 @@ public class AceExorcistGame
                 MitigateWithCards.Add(theCard);
                 MitigationPossible = true;
             }
-
+        
         bool Mitigation = false;
 
         if (MitigationPossible)
@@ -230,6 +231,9 @@ public class AceExorcistGame
             // prompt exorcist whether he would like to mitigate
             if (Mitigation) DoMitigate(MitigateWithCards);
         }
+
+        return true;
+
         //Validation
     }
 
@@ -244,7 +248,7 @@ public class AceExorcistGame
             return false;
 
         //If it is, remove it from the Summoner's hand and add it to Summon Zone
-        SummonCard.TakeCard(); // (Takes it and removes it) 
+        SummonZone.hand.Remove(SummonCard); // (Takes it and removes it) 
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
 
@@ -294,6 +298,7 @@ public class AceExorcistGame
         {
             //choose one or two of these cards to mitigate
             //
+            return true;
         }
 
         //Validation
@@ -304,7 +309,7 @@ public class AceExorcistGame
 
     public bool CheckVictorySummoner()
     {
-        if ((SummonZone.Count == 3) || (ExorcistHP <= 0))
+        if ((SummonZone.hand.Count == 3) || (ExorcistHP <= 0))
             return true;
         else return false;
         //if 3 cards in summon zone or exorcist HP <= 0, win
