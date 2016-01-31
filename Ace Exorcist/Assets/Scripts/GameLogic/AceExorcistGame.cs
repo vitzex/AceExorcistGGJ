@@ -7,38 +7,81 @@ public class AceExorcistGame
 {
 	public AceExorcistGame()
 	{
-        
+        //Create Deck and Hand for Exorcist, and draw 5 cards from Deck to Hand
+        ExorcistLibrary = new Deck(IsExorcist);
+        ExorcistHand = new Hand();
+        for (int i = 1; i < 6; i++)
+        {
+            ExorcistHand.addCard( ExorcistLibrary.TakeCard() );
+        }
+
+        //Create Deck and Hand for Exorcist, and draw 5 cards from Deck to Hand
+        IsExorcist = false;
+        SummonerLibrary = new Deck(IsExorcist);
+        for (int i = 1; i < 6; i++)
+        {
+            SummonerHand.addCard(SummonerLibrary.TakeCard());
+        }
+
+
+        //Create Summon Zone
+        SummonZone = new Hand();
+
+        //Create Discards (as a Hand - but not in this implementation)
+
 	}
 
-    private List<Card> ExorcistLibrary;
-    private List<Card> SummonerLibrary;
-    public Discard ExorcistDiscard;
-    public Discard SummonerDiscard;
+    private Deck ExorcistLibrary;
+    private Deck SummonerLibrary;
+    //public Discard ExorcistDiscard;
+    //public Discard SummonerDiscard;
     public Card SummonerLibraryCard;
     private Hand ExorcistHand;
     private Hand SummonerHand;
-    private List<Card> CardsPlayed;
+    private List<Card> CardsPlayed; //is this needed?
 
     public int ExorcistHP = 30;
     public int SummonerHP = 60;
 
     public int MaxHandSize = 6;
 
-    public List<Card> SummonZone;
+    public Hand SummonZone;
 
     public bool IsExorcistTurn = false;
+    public bool IsExorcist = true;
 
-    public Hand GetCardsInHand()
+    public Hand GetCardsInHand() //is this handled in Hand?
     {
         //Check if player is Exorcist
         if (IsExorcistTurn)
         {
-            //return ExorcistHand;
+            return ExorcistHand;
         }
         else
         {
             return SummonerHand;
         }
+    }
+
+    public void ToggleCard(int index, ref List<Card> CardsPlayed)
+    { Hand theHand=null;
+
+        if (IsExorcistTurn) theHand = ExorcistHand;
+        else theHand = SummonerHand;
+
+        if ((index > 0) && (index <= theHand.getHandCount()))  //if index out of bounds for the hand size
+        {
+            foreach (Card theCard in CardsPlayed)
+            {
+                if (theCard == theHand.hand[index - 1])
+                    CardsPlayed.Remove(theHand.hand[index - 1]); //remove index card if already played
+                return; //break method in this case
+            }
+
+            CardsPlayed.Add(theHand.hand[index - 1]); //add index card to CardsPlayed, if everything safe
+        }
+
+        else return; //break method if index out of bounds
     }
 
     public bool DoExorcistAttack(List<Card> AttackWithCards)
@@ -49,23 +92,24 @@ public class AceExorcistGame
         if (!IsExorcistTurn)
             return false;
 
-            int ExorcistAttack = 1; //defaulted
+            //int ExorcistAttack = 1; //defaulted
                                     // int ExorcistHeal = 1; //defaulted
 
         foreach (Card theCard in AttackWithCards) // correct enumeration error for AttackWithCards?
-        {            AttackValue = AttackValue + (int)theCard.cardValue;  
+        {            AttackValue = AttackValue + (int)theCard.cardValue;
             if (theCard.Suit != AttackWithCards[0].Suit) //exorcist flush = attack
-                ExorcistAttack = ExorcistAttack * 0; //no flush no attack
+                return false; //no flush no attack
         }
 
-        if (ExorcistAttack == 0) return false;
+        //if (ExorcistAttack == 0) return false;
         //Check that all in List are of same suit and that cards are from ExorcistHand 
             
 
             //Check that there is nothing in Summon Zone
-            if (SummonZone.Count == 0) //if Summon Zone empty, attack library
+            if (SummonZone.getHandCount() == 0) //if Summon Zone empty, attack library
 
-        { SummonerLibraryCard = SummonerLibrary.FirstOrDefault();
+        {
+            SummonerLibraryCard = SummonerLibrary.GetTopCard(); //FirstOrDefault();
 
             while (AttackValue > 0)
             {
@@ -73,9 +117,10 @@ public class AceExorcistGame
                 {
                     SummonerHP = SummonerHP - (int)SummonerLibraryCard.cardValue; //change HP
                     AttackValue = AttackValue - (int)SummonerLibraryCard.cardValue; //remaining attackvalue
-                    SummonerDiscard.Add(SummonerLibraryCard); // (Takes it and removes it)
-                    SummonerLibrary.Remove(SummonerLibraryCard);    //REMEMBER TO ADD TO DISCARD PILE
-                    // Exorcist must draw one card!!!!!!!!
+                    //SummonerDiscard.Add(SummonerLibraryCard); // (Takes it and removes it)
+                    SummonerLibrary.TakeCard();    //REMEMBER TO ADD TO DISCARD PILE
+                    // Exorcist must also draw one card
+                    ExorcistHand.addCard(ExorcistLibrary.TakeCard());
                 }
                 else
                 {
@@ -91,19 +136,19 @@ public class AceExorcistGame
         {
             int i = 0; //choose a card to be attacked (0,1,2)
 
-            if ( (int)SummonZone[i].cardValue <= AttackValue)
+            if ( (int)SummonZone.hand[i].cardValue <= AttackValue)
             {
-                SummonerHP = SummonerHP - (int)SummonZone[i].cardValue; //change HP
-                SummonZone.Remove(SummonZone[i]); // (Takes it and removes it)                                     
+                SummonerHP = SummonerHP - (int)SummonZone.hand[i].cardValue; //change HP
+                SummonZone.hand.Remove(SummonZone.hand[i]); // (Takes it and removes it)                                     
                 // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
             }
-            // DebugLog("Not enough attack value to destroy that Summoned Card");
+            // Debug.Log("Not enough attack value to destroy that Summoned Card");
             else return false; //attack too small means no attack
         }
 
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in AttackWithCards)
-           ExorcistDiscard.Add(AttackWithCards.TakeCard()); // (Takes it and removes it) 
+            ExorcistHand.removeCard(theCard); ;// (Takes it and removes it) 
            // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)

@@ -98,13 +98,16 @@ namespace Cards.Collections
 		}
 
 
-
+        public Card GetTopCard()
+        {
+            return Cards.FirstOrDefault();
+        }
  
 		public Card TakeCard()
 		{
 			if (Cards.Count > 0)
 			{
-				Card card = Cards.FirstOrDefault(); //Take the first card in the Deck
+                Card card = GetTopCard(); //Cards.FirstOrDefault(); //Take the first card in the Deck
 				Cards.Remove(card); //Remove that card from the Deck
 				return card;
 			}
