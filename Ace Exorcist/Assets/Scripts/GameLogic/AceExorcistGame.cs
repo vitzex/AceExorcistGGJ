@@ -91,10 +91,11 @@ public class AceExorcistGame
         {
             int i = 0; //choose a card to be attacked (0,1,2)
 
-            if (SummonZone[i].CardValue <= AttackValue)
+            if ( (int)SummonZone[i].cardValue <= AttackValue)
             {
-                SummonerHP = SummonerHP - SummonZone[i].CardValue; //change HP
-                SummonZone.Remove(SummonZone[i]); // (Takes it and removes it)                                         // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
+                SummonerHP = SummonerHP - (int)SummonZone[i].cardValue; //change HP
+                SummonZone.Remove(SummonZone[i]); // (Takes it and removes it)                                     
+                // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
             }
             // DebugLog("Not enough attack value to destroy that Summoned Card");
             else return false; //attack too small means no attack
@@ -102,7 +103,7 @@ public class AceExorcistGame
 
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in AttackWithCards)
-           ExorcistDiscard.Add(AttackWithCards.TakeCard(theCard)); // (Takes it and removes it) 
+           ExorcistDiscard.Add(AttackWithCards.TakeCard()); // (Takes it and removes it) 
            // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
@@ -134,8 +135,8 @@ public class AceExorcistGame
 
         //finally, take the cards played from the Exorcist's hand, and discard them
         foreach (Card theCard in HealWithCards)
-             // (Takes it and removes it) 
-        ExorcistDiscard.Add(HealWithCards.TakeCard(theCard))
+            // (Takes it and removes it) 
+            ExorcistDiscard.Add(HealWithCards.TakeCard(theCard));
                // SummonZone[i].Discard;   //REMEMBER TO ADD TO DISCARD PILE
 
         //Do changes to game state (hit points - done, remove cards from hand - done, etc)
@@ -170,7 +171,7 @@ public class AceExorcistGame
         bool MitigationPossible = false;
         List<Card> MitigateWithCards=null;
 
-        foreach (Card theCard in ExorcistHand.CardsInHand)
+        foreach (Card theCard in ExorcistHand.hand)
             if ((theCard.cardValue == AttackWithCards[0].cardValue - 1) || (theCard.cardValue == AttackWithCards[AttackWithCards.Count - 1].cardValue + 1))
             {
                 MitigateWithCards.Add(theCard);
@@ -258,11 +259,17 @@ public class AceExorcistGame
 
     public bool CheckVictorySummoner()
     {
+        if ((SummonZone.Count == 3) || (ExorcistHP <= 0))
+            return true;
+        else return false;
         //if 3 cards in summon zone or exorcist HP <= 0, win
     }
 
     public bool CheckVictoryExorcist()
     {
+        if (SummonerHP <= 0)
+            return true;
+        else return false;
         //if summoner HP <= 0, win
     }
 
@@ -272,6 +279,8 @@ public class AceExorcistGame
         //draw card for current player
         //should be PlayerLibrary.DrawCard(PlayerHand). Or something like that
 
+        //CheckVictoryExorcist();
+        //CheckVictorySummoner();
         //Check victory conditions
     }
 
@@ -283,10 +292,10 @@ public class AceExorcistGame
 
             foreach (Card theCard in CardsPlayed)
 
-                if (theCard.cardValue.Suit != CardsPlayed[0].Suit) //exorcist flush = attack
+                if (theCard.Suit != CardsPlayed[0].Suit) //exorcist flush = attack
                     ExorcistAttack = ExorcistAttack * 0; //no flush no attack
 
-                else if ((CardsPlayed.count == 2) && (CardsPlayed[0].CardValue == CardsPlayed[1].CardValue)) //pair
+                else if ((CardsPlayed.Count == 2) && (CardsPlayed[0].cardValue == CardsPlayed[1].cardValue)) //pair
                     DoExorcistHeal(CardsPlayed); //healed if pair
 
                     if (ExorcistAttack==1) DoExorcistAttack(CardsPlayed) ; //flush => attack
@@ -298,10 +307,10 @@ public class AceExorcistGame
             //checking if summoning
             foreach (Card theCard in CardsPlayed)
 
-                if ((CardsPlayed.count == 1) && ((CardsPlayed[0].CardValue > 7) || (CardsPlayed[0].CardValue == 1))) //face cards 
-                    DoSummonerPlaySummon(CardsPlayed); //face cards = summon
+                if ((CardsPlayed.Count == 1) && (( (int)CardsPlayed[0].cardValue > 7) || ( (int)CardsPlayed[0].cardValue == 1))) //face cards 
+                    DoSummonerPlaySummon(CardsPlayed[0]); //ONE face card played = summon
 
-                else if ((CardsPlayed.count == 2) && (CardsPlayed[0].CardValue == CardsPlayed[1].CardValue)) //pair
+                else if ((CardsPlayed.Count == 2) && ( CardsPlayed[0].cardValue == CardsPlayed[1].cardValue)) //pair
                     DoSummonerDrawCards(CardsPlayed); //pair => summoner draws
 
                 else DoSummonerAttack(CardsPlayed);
